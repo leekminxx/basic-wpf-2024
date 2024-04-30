@@ -24,5 +24,23 @@ namespace ex04_wpf_bikeshop
         {
             InitializeComponent();
         }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            // 
+            Bike myBike = new Bike();
+            myBike.Speed = 60;
+            myBike.Color = Colors.Red;
+
+            TextBox text1 = new TextBox();
+            stpBike.DataContext = myBike;
+            //MessageBox.Show(DgBike.Speed.ToString());
+        }
+
+        //private void SldValue_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        //{
+        //    PrgValue.Value = (double)e.NewValue;    
+        //    LblValue.Content = Math.Round(PrgValue.Value, 1);
+        //}
     }
 }
