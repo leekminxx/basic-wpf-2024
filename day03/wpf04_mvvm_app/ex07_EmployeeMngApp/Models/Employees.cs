@@ -7,6 +7,7 @@
         public decimal salary{ get; set; } 
         public string DeptName{ get; set; } 
         public string Addr{ get; set; }
+        public decimal Salary { get; internal set; }
 
         public static readonly string SELECT_QUERY = @"SELECT [Id]
                                                               ,[EmpName]
@@ -29,8 +30,7 @@
                                                               ,[Salary] = @Salary
                                                               ,[DeptName] = @DeptName
                                                               ,[Addr] = @Addr
-                                                         WHERE Id = @Id
-                                                        ";
+                                                         WHERE Id = @Id";
         public static readonly string DELETE_QUERY = @"DELETE FROM [dbo].[Employees]
                                                          WHERE Id=@Id";
     }

@@ -7,6 +7,6 @@
                                                     "Persist Security Info=True;"+
                                                     "User ID=ems_user;" +
                                                     "Encrypt=False;"+
-                                                    "Password=ems+p@ss";
+                                                    "Password=ems_p@ss";
     }
 }
