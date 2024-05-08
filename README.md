@@ -116,10 +116,11 @@ IoT 개발자 WPF 학습리포지토리
 
 - Movie API 연동 앱
     - DB(SQLServer)연동
-    - MahApps.Metro
+    - MahApps.Metro UI
+    - CefSharp WebBrowser 패키지
+    - Gogle.Apis 패키지 
     - OpenAPI 두가지 사용
     - MVVM은 시간부족으로 사용안함 
-    - 좋아하는 영화 즐겨찾기 앱
     - 좋아하는 영화 즐겨찾기 앱
     - [TMDB](https://www.themoviedb.org/) OpenAPI 활용
         - 회원가입 후 API 신청
@@ -132,3 +133,7 @@ IoT 개발자 WPF 학습리포지토리
             2. OAutho 동의화면 , 기본내용 입력 후 다음 
             3. 범위는 저장 후 계속      
             4. OAutho Client ID, 앱유형을 데스크톱앱 , 이름 입력 후 만들기 클릭
+
+## 6일차
+- MovieFinder 2024 계속
+    - 
