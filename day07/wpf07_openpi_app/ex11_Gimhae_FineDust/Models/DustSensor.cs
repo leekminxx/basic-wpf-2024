@@ -15,7 +15,7 @@
         public int Pm25_after { get; set; } // PM 2.5mm 초미세먼지 측정값
         public int State {  get; set; } // 상태?
         public DateTime Timestamp { get; set; } // 측정일시
-        public string Company_id {  get; set; } // 회사아디이?
+        public string Company_id {  get; set; } // 회사아이디
         public string Company_name {  get; set; } // 회사명
         public static readonly string INSERT_QUERY = @"INSERT INTO [dbo].[Dustsensor]
                                                        ([Dev_id]
