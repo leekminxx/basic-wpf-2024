@@ -9,11 +9,11 @@ namespace openApi_min.Helpers
     internal class Common
     {
         public static readonly string CONNSTRING = "Data Source=127.0.0.1;" +
-                                                    "Initial Catalog=EMS;" +
+                                                    "Initial Catalog=DagueFood;" +
                                                     "Persist Security Info=True;" +
-                                                    "User ID=ems_user;" +
+                                                    "User ID=sa;" +
                                                     "Encrypt=False;" +
-                                                    "Password=ems_p@ss";
+                                                    "Password=mssql_p@ss";
         public static string Index;
     }
 }

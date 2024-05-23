@@ -164,7 +164,7 @@ namespace ex11_Gimhae_FineDust
 
         private void GrdResult_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var curItem = GrdResult.SelectedItem as DustSensor;
+            var curItem = GrdResult.SelectedItem as DustSensor; 
 
             var mapWindow = new MapWindow(curItem.Coordy, curItem.Coordx);
             mapWindow.Owner = this;

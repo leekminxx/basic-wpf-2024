@@ -20,6 +20,7 @@ namespace openApi_min
     /// 
     public partial class MainWindow : MetroWindow
     {
+        bool isFavorite = false;
         public MainWindow()
         {
             InitializeComponent();
@@ -228,6 +229,57 @@ namespace openApi_min
 
 
         }
+
+        private async void BtnFavoite_Click(object sender, RoutedEventArgs e)
+        {
+            if (GrdResult.SelectedItems.Count == 0)
+            {
+                await this.ShowMessageAsync("즐겨찾기", "추가할 맛집을 선택하세요(복수선택가능)!!");
+                return;
+            }
+            if (isFavorite == true)  // 즐겨찾기 보기한 뒤 영화를 다시 즐겨찾기하려고 할때 막음.
+            {
+                await this.ShowMessageAsync("즐겨찾기", "이미 즐겨찾기한 맛집입니다");
+                return;
+            }
+
+
+
+            var DaeguFood = new List<DaeguFood>();
+            foreach (DaeguFood item in GrdResult.SelectedItems)
+            {
+                DaeguFood.Add(item);
+            }
+            Debug.WriteLine(DaeguFood.Count);
+            try
+            {
+                var insRes = 0;
+
+                using (SqlConnection conn = new SqlConnection(Helpers.Common.CONNSTRING))
+                {
+                    conn.Open();
+
+                    foreach (DaeguFood item in DaeguFood)
+                    {
+                        // 저장되기 전에 이미 저장된 데이터인지 확인 후 
+                        SqlCommand chkCmd = new SqlCommand(Models.DaeguFood.INSERT_QUERY, conn);
+                        chkCmd.Parameters.AddWithValue("@Id", item.OPENDATA_ID);
+                        var cnt = Convert.ToInt32(chkCmd.ExecuteScalar()); // COUNT
+
+                        if (cnt == 1) continue; // 이미 데이터가 있으면 패스
+
+                        SqlCommand cmd = new SqlCommand(Models.DaeguFood.INSERT_QUERY, conn);
+                        cmd.Parameters.AddWithValue("@OPENDATA_ID", item.OPENDATA_ID);
+                        cmd.Parameters.AddWithValue("@GNG_CS", item.GNG_CS);
+                        cmd.Parameters.AddWithValue("@FD_CS", item.FD_CS);
+                        cmd.Parameters.AddWithValue("@BZ_NM", item.BZ_NM);
+                        cmd.Parameters.AddWithValue("@TLNO", item.TLNO);
+                        cmd.Parameters.AddWithValue("@MBZ_HR", item.MBZ_HR);
+                        cmd.Parameters.AddWithValue("@SEAT_CNT", item.SEAT_CNT);
+                        cmd.Parameters.AddWithValue("@PKPL", item.PKPL);
+                        cmd.Parameters.AddWithValue("@SBW", item.SBW);
+                        cmd.Parameters.AddWithValue("@BUS", item.BUS);
+                    }
 
         //private void GrdResult_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         //{

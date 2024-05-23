@@ -34,6 +34,10 @@
                     Style="{StaticResource MahApps.Styles.Button.Square.Highlight}"
                     Click="BtnSaveData_Click"/>
 
+                <Button x:Name="BtnFavoite" Content="즐겨찾기" Width="80" Margin="5,10"
+                        Style="{StaticResource MahApps.Styles.Button.Square.Highlight}"
+                        Click="BtnFavoite_Click"/>
+
                 <ComboBox x:Name="ComboFoodType" Grid.Row="0" HorizontalAlignment="Center"
                       SelectionChanged="ComboFoodType_SelectionChanged"
                           Width="80" Margin="5,10">
@@ -71,9 +75,9 @@
             </DataGrid.Columns>
         </DataGrid>
 
+        
 
-
-            <StatusBar Grid.Row="2">
+        <StatusBar Grid.Row="2">
             <StatusBarItem Content="대구푸드 골목별 업체 정보"/>
             <Separator Style="{StaticResource MahApps.Styles.Separator.StatusBar}"/>
             <StatusBarItem x:Name="StsResult"/>

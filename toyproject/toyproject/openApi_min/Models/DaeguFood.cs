@@ -17,6 +17,9 @@
 
         public string BUS {  get; set; } // 버스
 
+        public static readonly string CHECK_QUERY = @"SELECT COUNT(*)
+                                                        From "
+
 
 
 
