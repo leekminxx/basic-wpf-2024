@@ -7,7 +7,7 @@
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:local="clr-namespace:openApi_min"
         mc:Ignorable="d"
-        Title="식당" Height="450" Width="1300" Loaded="MetroWindow_Loaded">
+        Title="대구맛집" Height="450" Width="1300" Loaded="MetroWindow_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
@@ -22,21 +22,45 @@
                 <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
 
-            <Label Content="대구 맛집" FontSize="16" FontWeight="Bold" Margin="10"/>
+            <!--<Label Content="대구 맛집" FontSize="16" FontWeight="Bold" Margin="10"/>-->
+            <TextBox x:Name="TxtMovieName" Grid.Row="0" Grid.Column="0" Margin="5, 10"
+                     FontSize="14"
+                     mah:TextBoxHelper.Watermark="검색할 맛집 입력"
+                     mah:TextBoxHelper.UseFloatingWatermark="True"
+                     mah:TextBoxHelper.ClearTextButton="True"
+                     KeyDown="TxtMovieName_KeyDown"/>
+            <!--<Button x:Name="BtnSearch" Grid.Row="0" Grid.Column="1" Margin="5, 10"
+                     FontSize="14" Content="검색"
+                     Style="{StaticResource MahApps.Styles.Button.Square.Accent}
+                "Click="BtnSearch_Click_1">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconModern Kind="Magnify" Margin="5" />
+                            <TextBlock Text="{Binding}" Margin="5" />
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+        </Grid>-->
 
-            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="393,0,0,0" Width="474">
                 <Button x:Name="BtnReqRealtime" Content="실시간조회" Width="100" Margin="5, 10" 
                     Style="{StaticResource MahApps.Styles.Button.Square.Accent}"
                     Click="BtnReqRealtime_Click"/>
-                    <!-- 필요한 만큼 지역을 추가하세요 -->
-                
+                <!-- 필요한 만큼 지역을 추가하세요 -->
+
                 <Button x:Name="BtnSaveData" Content="저장" Width="80" Margin="5,10"
-                    Style="{StaticResource MahApps.Styles.Button.Square.Highlight}"
-                    Click="BtnSaveData_Click"/>
+                        Style="{StaticResource MahApps.Styles.Button.Square.Highlight}"
+                        Click="BtnSaveData_Click"/>
 
                 <Button x:Name="BtnFavoite" Content="즐겨찾기" Width="80" Margin="5,10"
                         Style="{StaticResource MahApps.Styles.Button.Square.Highlight}"
                         Click="BtnFavoite_Click"/>
+
+                <Button x:Name="BtnViewFavorite" Content="즐겨찾기 보기" Width="80" Margin="5,10"
+                        Style="{StaticResource MahApps.Styles.Button.Square.Highlight}"
+                        Click="BtnViewFavorite_Click"/>
 
                 <ComboBox x:Name="ComboFoodType" Grid.Row="0" HorizontalAlignment="Center"
                       SelectionChanged="ComboFoodType_SelectionChanged"
@@ -48,18 +72,17 @@
                     <ComboBoxItem Content="디저트/베이커리" />
                     <ComboBoxItem Content="세계요리" />
                     <ComboBoxItem Content="특별한 술집"
-                              MouseDoubleClick="ComboBoxItem_MouseDoubleClick_1"/>
+                             />
                     <!-- 필요한 만큼 식당 종류를 추가하세요 -->
                 </ComboBox>
             </StackPanel>
         </Grid>
-        
 
         <!--중간 데이터 그리드 영역-->
         <DataGrid x:Name="GrdResult" Grid.Row="1" Margin="10"
               IsReadOnly="True" ItemsSource="{Binding}"
               Style="{StaticResource MahApps.Styles.DataGrid.Azure}"
-                  AutoGenerateColumns="False"
+                  AutoGenerateColumns="False" MouseDoubleClick="GrdResult_MouseDoubleClick"
         >
             <DataGrid.Columns>
                 <!--<DataGridTextColumn Binding="{Binding OPENDATA_ID}" Header= "고유번호"  Width='200'/>-->
@@ -71,18 +94,14 @@
                 <DataGridTextColumn Binding="{Binding TLNO}" Header= "연락처"  Width='150'/>
                 <DataGridTextColumn Binding="{Binding GNG_CS}" Header= "주소"  Width='250'/>
                 <DataGridTextColumn Binding="{Binding PKPL}" Header= "주차장"  Width='500'/>
-                
             </DataGrid.Columns>
         </DataGrid>
-
-        
 
         <StatusBar Grid.Row="2">
             <StatusBarItem Content="대구푸드 골목별 업체 정보"/>
             <Separator Style="{StaticResource MahApps.Styles.Separator.StatusBar}"/>
             <StatusBarItem x:Name="StsResult"/>
         </StatusBar>
-
 
     </Grid>
 </mah:MetroWindow>

@@ -21,7 +21,7 @@ namespace ex10_MovieFinder2024.Models
 
         public static readonly string CHECK_QUERY = @"SELECT COUNT(*)
                                                         From MovieItem
-                                                        WHTER Id=@Id";
+                                                        WHERE Id=@Id";
                                                                 
 
 

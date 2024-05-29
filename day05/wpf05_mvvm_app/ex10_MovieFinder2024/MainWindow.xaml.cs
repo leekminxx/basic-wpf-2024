@@ -183,7 +183,7 @@ namespace ex10_MovieFinder2024
                     foreach (MovieItem item in addMovieItems)
                     {
                         // 저장되기 전에 이미 저장된 데이터인지 확인 후 
-                        SqlCommand chkCmd = new SqlCommand(Models.MovieItem.INSERT_QUERY, conn);
+                        SqlCommand chkCmd = new SqlCommand(Models.MovieItem.CHECK_QUERY, conn);
                         chkCmd.Parameters.AddWithValue("@Id", item.Id);
                         var cnt = Convert.ToInt32(chkCmd.ExecuteScalar()); // COUNT
 

@@ -18,8 +18,9 @@
         public string BUS {  get; set; } // 버스
 
         public static readonly string CHECK_QUERY = @"SELECT COUNT(*)
-                                                        From "
-
+                                                        FROM [dbo].[daegufood]
+                                                       WHERE OPENDATA_ID = @OPENDATA_ID";
+                                                       
 
 
 

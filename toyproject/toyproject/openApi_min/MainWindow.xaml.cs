@@ -3,6 +3,7 @@ using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Data.SqlClient;
 using Newtonsoft.Json.Linq;
 using openApi_min.Models;
+using System;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.IO;
@@ -11,6 +12,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace openApi_min
 {
@@ -41,8 +43,6 @@ namespace openApi_min
 
         private async void DataGrid()
         {
-
-            
 
         }
 
@@ -128,12 +128,7 @@ namespace openApi_min
                 StsResult.Content = $"OpenAPI {daegufood.Count} 건 조회완료!";
             }
             // ComboBox에서 선택된 지역 가져오기
-
-
             // 지역별 API 요청 URL 생성
-
-
-
         }
 
         private async void BtnSaveData_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -181,18 +176,7 @@ namespace openApi_min
             
             InitComboDateFromDB();
         }
-
-        private void ComboBoxItem_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-           
-        }
-
-        private void ComboBoxItem_MouseDoubleClick_1(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-
-            // 선택된 지역에 따라 필요한 작업 수행
-            
-        }
+    
 
         private void ComboFoodType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -225,9 +209,6 @@ namespace openApi_min
             }
             Helpers.Common.Index = index;
             BtnReqRealtime_Click(sender, e);
-
-
-
         }
 
         private async void BtnFavoite_Click(object sender, RoutedEventArgs e)
@@ -242,8 +223,6 @@ namespace openApi_min
                 await this.ShowMessageAsync("즐겨찾기", "이미 즐겨찾기한 맛집입니다");
                 return;
             }
-
-
 
             var DaeguFood = new List<DaeguFood>();
             foreach (DaeguFood item in GrdResult.SelectedItems)
@@ -262,7 +241,7 @@ namespace openApi_min
                     foreach (DaeguFood item in DaeguFood)
                     {
                         // 저장되기 전에 이미 저장된 데이터인지 확인 후 
-                        SqlCommand chkCmd = new SqlCommand(Models.DaeguFood.INSERT_QUERY, conn);
+                        SqlCommand chkCmd = new SqlCommand(Models.DaeguFood.CHECK_QUERY, conn);
                         chkCmd.Parameters.AddWithValue("@Id", item.OPENDATA_ID);
                         var cnt = Convert.ToInt32(chkCmd.ExecuteScalar()); // COUNT
 
@@ -279,18 +258,101 @@ namespace openApi_min
                         cmd.Parameters.AddWithValue("@PKPL", item.PKPL);
                         cmd.Parameters.AddWithValue("@SBW", item.SBW);
                         cmd.Parameters.AddWithValue("@BUS", item.BUS);
+
+                        insRes += cmd.ExecuteNonQuery(); //데이터 하나마다 INSERT 쿼리 실행 
                     }
+                }
 
-        //private void GrdResult_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        //{
-        //    var curItem = GrdResult.SelectedItem as DaeguFood;
+                if (insRes == DaeguFood.Count)
+                {
+                    await this.ShowMessageAsync("즐겨찾기", "즐겨찾기 저장성공!");
+                }
+                else
+                {
+                    await this.ShowMessageAsync("즐겨찾기", $"즐겨찾기{DaeguFood.Count} 건중{insRes}건 저장성공!");
+                }
+            }
+            catch (Exception ex)
+            {
+                await this.ShowMessageAsync("오류", $"즐겨찾기 오류{ex.Message}");
+            }
+        }
 
-        //    if (curItem != null)
-        //    {
-        //        var detailsWindow = new DetailsWindow(curItem.SBW, curItem.BUS);
-        //        detailsWindow.ShowDialog();
-        //    }
+        private async void BtnViewFavorite_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var favoriteList = new List<DaeguFood>();
 
-        //}
+                using (SqlConnection conn = new SqlConnection(Helpers.Common.CONNSTRING))
+                {
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM FavoriteDaeguFood", conn);
+                    SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                    while (reader.Read())
+                    {
+                        favoriteList.Add(new DaeguFood
+                        {
+                            OPENDATA_ID = reader["OPENDATA_ID"].ToString(),
+                            GNG_CS = reader["GNG_CS"].ToString(),
+                            FD_CS = reader["FD_CS"].ToString(),
+                            BZ_NM = reader["BZ_NM"].ToString(),
+                            TLNO = reader["TLNO"].ToString(),
+                            MBZ_HR = reader["MBZ_HR"].ToString(),
+                            SEAT_CNT = reader["SEAT_CNT"].ToString(),
+                            PKPL = reader["PKPL"].ToString(),
+                            SBW = reader["SBW"].ToString(),
+                            BUS = reader["BUS"].ToString(),
+                        });
+                    }
+                }
+
+                if (favoriteList.Count > 0)
+                {
+                    GrdResult.ItemsSource = favoriteList;
+                    await this.ShowMessageAsync("즐겨찾기", "즐겨찾기 목록을 불러왔습니다.");
+                }
+                else
+                {
+                    await this.ShowMessageAsync("즐겨찾기", "저장된 즐겨찾기가 없습니다.");
+                }
+            }
+            catch (Exception ex)
+            {
+                await this.ShowMessageAsync("오류", $"즐겨찾기 목록 불러오기 오류: {ex.Message}");
+            }
+        }
+
+
+
+        private void GrdResult_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (GrdResult.SelectedItem != null)
+            {
+                var selectedItem = GrdResult.SelectedItem as DaeguFood;
+                if (selectedItem != null)
+                {
+                    string message = $"지하철 이용시: {selectedItem.SBW}\n 버스 이용시: {selectedItem.BUS}";
+                    MessageBox.Show(message, "Details", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+        }
+
+        private void TxtMovieName_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+
+        }
+
+        private void BtnSearch_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnSearch_Click_1(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
