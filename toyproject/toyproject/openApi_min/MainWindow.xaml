@@ -16,23 +16,23 @@
         </Grid.RowDefinitions>
 
         <!--최상단 타이틀 및 버튼 위치-->
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="0" RenderTransformOrigin="0.545,0.545">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
 
             <!--<Label Content="대구 맛집" FontSize="16" FontWeight="Bold" Margin="10"/>-->
-            <TextBox x:Name="TxtMovieName" Grid.Row="0" Grid.Column="0" Margin="5, 10"
+            <TextBox x:Name="TxtAreaName" Grid.Row="0" Grid.Column="0" Margin="5, 10"
                      FontSize="14"
-                     mah:TextBoxHelper.Watermark="검색할 맛집 입력"
+                     mah:TextBoxHelper.Watermark="어디지역에서 먹을래요?"
                      mah:TextBoxHelper.UseFloatingWatermark="True"
                      mah:TextBoxHelper.ClearTextButton="True"
-                     KeyDown="TxtMovieName_KeyDown"/>
-            <!--<Button x:Name="BtnSearch" Grid.Row="0" Grid.Column="1" Margin="5, 10"
+                     KeyDown="TxtAreaName_KeyDown"/>
+            <Button x:Name="BtnSearch" Grid.Row="0" Grid.Column="1" Margin="5,10,700,10"
                      FontSize="14" Content="검색"
-                     Style="{StaticResource MahApps.Styles.Button.Square.Accent}
-                "Click="BtnSearch_Click_1">
+                     Style="{StaticResource MahApps.Styles.Button.Square.Accent}"
+                     Click="BtnSearch_Click">
                 <Button.ContentTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -42,41 +42,42 @@
                     </DataTemplate>
                 </Button.ContentTemplate>
             </Button>
-        </Grid>-->
+            <ComboBox mah:TextBoxHelper.Watermark="음식카테고리를 선택하세요" 
+                      mah:TextBoxHelper.UseFloatingWatermark="True"
+                      mah:TextBoxHelper.ClearTextButton="True"
+                      x:Name="ComboFoodType"
+                      SelectionChanged="ComboFoodType_SelectionChanged"
+                          Grid.Column="1" Margin="175,3,497,-1">
+                <ComboBoxItem Content="한식"/>
+                <ComboBoxItem Content="양식"/>
+                <ComboBoxItem Content="일식" />
+                <ComboBoxItem Content="전통차/커피전문점" />
+                <ComboBoxItem Content="디저트/베이커리" />
+                <ComboBoxItem Content="세계요리" />
+                <ComboBoxItem Content="특별한 술집"
+                             />
+                <!-- 필요한 만큼 식당 종류를 추가하세요 -->
+            </ComboBox>
+        </Grid>
 
-        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="393,0,0,0" Width="474">
-                <Button x:Name="BtnReqRealtime" Content="실시간조회" Width="100" Margin="5, 10" 
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="837,1,0,1" Width="453">
+            <Button x:Name="BtnReqRealtime" Content="실시간조회" Width="100" Margin="5, 10" 
                     Style="{StaticResource MahApps.Styles.Button.Square.Accent}"
                     Click="BtnReqRealtime_Click"/>
-                <!-- 필요한 만큼 지역을 추가하세요 -->
+            <!-- 필요한 만큼 지역을 추가하세요 -->
 
-                <Button x:Name="BtnSaveData" Content="저장" Width="80" Margin="5,10"
+            <Button x:Name="BtnSaveData" Content="저장" Width="80" Margin="5,10"
                         Style="{StaticResource MahApps.Styles.Button.Square.Highlight}"
                         Click="BtnSaveData_Click"/>
 
-                <Button x:Name="BtnFavoite" Content="즐겨찾기" Width="80" Margin="5,10"
+            <Button x:Name="BtnFavoite" Content="즐겨찾기" Width="80" Margin="5,10"
                         Style="{StaticResource MahApps.Styles.Button.Square.Highlight}"
                         Click="BtnFavoite_Click"/>
 
-                <Button x:Name="BtnViewFavorite" Content="즐겨찾기 보기" Width="80" Margin="5,10"
+            <Button x:Name="BtnViewFavorite" Content="즐겨찾기 보기" Width="80" Margin="5,10"
                         Style="{StaticResource MahApps.Styles.Button.Square.Highlight}"
                         Click="BtnViewFavorite_Click"/>
-
-                <ComboBox x:Name="ComboFoodType" Grid.Row="0" HorizontalAlignment="Center"
-                      SelectionChanged="ComboFoodType_SelectionChanged"
-                          Width="80" Margin="5,10">
-                    <ComboBoxItem Content="한식"/>
-                    <ComboBoxItem Content="양식"/>
-                    <ComboBoxItem Content="일식" />
-                    <ComboBoxItem Content="전통차/커피전문점" />
-                    <ComboBoxItem Content="디저트/베이커리" />
-                    <ComboBoxItem Content="세계요리" />
-                    <ComboBoxItem Content="특별한 술집"
-                             />
-                    <!-- 필요한 만큼 식당 종류를 추가하세요 -->
-                </ComboBox>
-            </StackPanel>
-        </Grid>
+        </StackPanel>
 
         <!--중간 데이터 그리드 영역-->
         <DataGrid x:Name="GrdResult" Grid.Row="1" Margin="10"
@@ -97,11 +98,12 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <StatusBar Grid.Row="2">
+        <!--<StatusBar Grid.Row="2">
             <StatusBarItem Content="대구푸드 골목별 업체 정보"/>
             <Separator Style="{StaticResource MahApps.Styles.Separator.StatusBar}"/>
             <StatusBarItem x:Name="StsResult"/>
-        </StatusBar>
+        </StatusBar>-->
 
+        <!--</Grid>-->
     </Grid>
 </mah:MetroWindow>

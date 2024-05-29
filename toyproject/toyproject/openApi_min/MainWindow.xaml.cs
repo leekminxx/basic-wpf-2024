@@ -27,12 +27,98 @@ namespace openApi_min
         {
             InitializeComponent();
         }
-        
-        
+        private async void BtnSearch_Click(object sender, RoutedEventArgs e)
+        {
+            // await this.ShowMessageAsync("검색", "검색을 시작합니다!!!");
+            if (String.IsNullOrEmpty(TxtAreaName.Text))
+            {
+                await this.ShowMessageAsync("검색", "검색할 지역을 입력하세요");
+                return;
+            }
+
+            string openApiUri = $"https://www.daegufood.go.kr/kor/api/tasty.html?mode=json&addr={TxtAreaName.Text}";
+            string result = string.Empty;
+
+            //WebRequest, WebResponse 객체
+            WebRequest req = null;
+            WebResponse res = null;
+            StreamReader reader = null;
+            try
+            {
+                req = WebRequest.Create(openApiUri);
+                res = await req.GetResponseAsync();
+                reader = new StreamReader(res.GetResponseStream());
+                result = reader.ReadToEnd();
+
+                //await this.ShowMessageAsync("결과", result);
+                //Debug.WriteLine(result);
+            }
+            catch (Exception ex)
+            {
+                await this.ShowMessageAsync("오류", $"OpenAPI 조회오류 {ex.Message}");
+            }
+
+            var jsonResult = JObject.Parse(result);
+            var status = Convert.ToString(jsonResult["status"]);
+
+            if (status == "DONE")
+            {
+                var data = jsonResult["data"];
+                var jsonArray = data as JArray;
+
+                var daegufood = new List<DaeguFood>();
+                if (string.IsNullOrEmpty(Helpers.Common.Index))
+                {
+                    foreach (var item in jsonArray)
+                    {
+                        daegufood.Add(new DaeguFood()
+                        {
+                            OPENDATA_ID = Convert.ToString(item["OPENDATA_ID"]),
+                            GNG_CS = Convert.ToString(item["GNG_CS"]),
+                            FD_CS = Convert.ToString(item["FD_CS"]),
+                            BZ_NM = Convert.ToString(item["BZ_NM"]),
+                            TLNO = Convert.ToString(item["TLNO"]),
+                            MBZ_HR = Convert.ToString(item["MBZ_HR"]),
+                            SEAT_CNT = Convert.ToString(item["SEAT_CNT"]),
+                            PKPL = Convert.ToString(item["PKPL"]),
+                            SBW = Convert.ToString(item["SBW"]),
+                            BUS = Convert.ToString(item["BUS"]),
+                        });
+
+                    }
+                }
+
+                else
+                {
+                    foreach (var item in jsonArray)
+                    {
+                        if (Convert.ToString(item["FD_CS"]) == Helpers.Common.Index)
+                            daegufood.Add(new DaeguFood()
+                            {
+                                OPENDATA_ID = Convert.ToString(item["OPENDATA_ID"]),
+                                GNG_CS = Convert.ToString(item["GNG_CS"]),
+                                FD_CS = Convert.ToString(item["FD_CS"]),
+                                BZ_NM = Convert.ToString(item["BZ_NM"]),
+                                TLNO = Convert.ToString(item["TLNO"]),
+                                MBZ_HR = Convert.ToString(item["MBZ_HR"]),
+                                SEAT_CNT = Convert.ToString(item["SEAT_CNT"]),
+                                PKPL = Convert.ToString(item["PKPL"]),
+                                SBW = Convert.ToString(item["SBW"]),
+                                BUS = Convert.ToString(item["BUS"]),
+                            });
+
+                    }
+                }
+                this.DataContext = daegufood;
+                //StsResult.Content = $"OpenAPI {daegufood.Count} 건 조회완료!";
+            }
+
+        }
+
+
         private void MetroWindow_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
-            InitComboDateFromDB();
-            BtnReqRealtime_Click(sender, e);
+            //BtnReqRealtime_Click(sender, e);
         }
 
 
@@ -41,10 +127,7 @@ namespace openApi_min
             // DB
         }
 
-        private async void DataGrid()
-        {
-
-        }
+        
 
         private async void BtnReqRealtime_Click(object sender, System.Windows.RoutedEventArgs e)
         {
@@ -122,10 +205,8 @@ namespace openApi_min
 
                     }
                 }
-
-
                 this.DataContext = daegufood;
-                StsResult.Content = $"OpenAPI {daegufood.Count} 건 조회완료!";
+                //StsResult.Content = $"OpenAPI {daegufood.Count} 건 조회완료!";
             }
             // ComboBox에서 선택된 지역 가져오기
             // 지역별 API 요청 URL 생성
@@ -162,11 +243,11 @@ namespace openApi_min
                         insRes += cmd.ExecuteNonQuery();
                     }
 
-                    if (insRes > 0)
-                    {
-                        await this.ShowMessageAsync("저장", "DB저장성공");
-                        StsResult.Content = $"DB 저장 {insRes}건 성공!";
-                    }
+                    //if (insRes > 0)
+                    //{
+                    //    await this.ShowMessageAsync("저장", "DB저장성공");
+                    //    StsResult.Content = $"DB 저장 {insRes}건 성공!";
+                    //}
                 }
             }
             catch (Exception ex)
@@ -327,30 +408,23 @@ namespace openApi_min
 
 
 
-        private void GrdResult_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private async void GrdResult_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (GrdResult.SelectedItem != null)
             {
                 var selectedItem = GrdResult.SelectedItem as DaeguFood;
                 if (selectedItem != null)
                 {
-                    string message = $"지하철 이용시: {selectedItem.SBW}\n 버스 이용시: {selectedItem.BUS}";
-                    MessageBox.Show(message, "Details", MessageBoxButton.OK, MessageBoxImage.Information);
+                    //string message = $"지하철 이용시: {selectedItem.SBW}\n 버스 이용시: {selectedItem.BUS}";
+                    //MessageBox.Show(message, "대중교통", MessageBoxButton.OK, MessageBoxImage.Information);
+                    string message = $"지하철 이용시: {selectedItem.SBW}\n버스 이용시: {selectedItem.BUS}";
+                    await this.ShowMessageAsync("대중교통", message);
                 }
             }
         }
 
-        private void TxtMovieName_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-
-        }
-
-        private void BtnSearch_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void BtnSearch_Click_1(object sender, RoutedEventArgs e)
+        
+        private void TxtAreaName_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
 
         }
