@@ -29,7 +29,7 @@
                      mah:TextBoxHelper.UseFloatingWatermark="True"
                      mah:TextBoxHelper.ClearTextButton="True"
                      KeyDown="TxtAreaName_KeyDown"/>
-            <Button x:Name="BtnSearch" Grid.Row="0" Grid.Column="1" Margin="5,10,700,10"
+            <Button x:Name="BtnSearch" Grid.Row="0" Grid.Column="1" Margin="5, 5,700,10"
                      FontSize="14" Content="검색"
                      Style="{StaticResource MahApps.Styles.Button.Square.Accent}"
                      Click="BtnSearch_Click">
@@ -47,7 +47,7 @@
                       mah:TextBoxHelper.ClearTextButton="True"
                       x:Name="ComboFoodType"
                       SelectionChanged="ComboFoodType_SelectionChanged"
-                          Grid.Column="1" Margin="175,3,497,-1">
+                          Grid.Column="1" Margin="175,5,497,10">
                 <ComboBoxItem Content="한식"/>
                 <ComboBoxItem Content="양식"/>
                 <ComboBoxItem Content="일식" />
@@ -80,7 +80,7 @@
         </StackPanel>
 
         <!--중간 데이터 그리드 영역-->
-        <DataGrid x:Name="GrdResult" Grid.Row="1" Margin="10"
+        <DataGrid x:Name="GrdResult" Grid.Row="1" Margin="10,0,10,20"
               IsReadOnly="True" ItemsSource="{Binding}"
               Style="{StaticResource MahApps.Styles.DataGrid.Azure}"
                   AutoGenerateColumns="False" MouseDoubleClick="GrdResult_MouseDoubleClick"
