@@ -23,23 +23,68 @@ namespace openApi_min
     public partial class MainWindow : MetroWindow
     {
         bool isFavorite = false;
+        bool isArea = false;
         public MainWindow()
         {
             InitializeComponent();
         }
-        private async void BtnSearch_Click(object sender, RoutedEventArgs e)
-        {
-            // await this.ShowMessageAsync("검색", "검색을 시작합니다!!!");
-            if (String.IsNullOrEmpty(TxtAreaName.Text))
-            {
-                await this.ShowMessageAsync("검색", "검색할 지역을 입력하세요");
-                return;
-            }
 
+        private void MetroWindow_Loaded(object sender, System.Windows.RoutedEventArgs e) { }
+
+        private async void TxtAreaName_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            isArea = true;
+        }
+
+        private void ComboFoodType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int num = ComboFoodType.SelectedIndex;
+            string index = "";
+
+            switch (num)
+            {
+                case 0:
+                    index = "한식";
+                    break;
+                case 1:
+                    index = "양식";
+                    break;
+                case 2:
+                    index = "일식";
+                    break;
+                case 3:
+                    index = "전통차/커피전문점";
+                    break;
+                case 4:
+                    index = "디저트/베이커리";
+                    break;
+                case 5:
+                    index = "세계요리";
+                    break;
+                case 6:
+                    index = "특별한 술집";
+                    break;
+            }
+            Helpers.Common.Index = index;
+
+            if (isArea)
+            {
+                ShowAreaRestaurantInfo();
+            }
+            else
+            {
+                // 해당 식당 카테고리에 해당하는 식당 정보만 보여주기
+                ShowRestaurantInfo();
+
+            }
+        }
+
+        private async void ShowAreaRestaurantInfo()
+        {
             string openApiUri = $"https://www.daegufood.go.kr/kor/api/tasty.html?mode=json&addr={TxtAreaName.Text}";
             string result = string.Empty;
 
-            //WebRequest, WebResponse 객체
+            // WebRequest, WebResponse 객체
             WebRequest req = null;
             WebResponse res = null;
             StreamReader reader = null;
@@ -49,13 +94,11 @@ namespace openApi_min
                 res = await req.GetResponseAsync();
                 reader = new StreamReader(res.GetResponseStream());
                 result = reader.ReadToEnd();
-
-                //await this.ShowMessageAsync("결과", result);
-                //Debug.WriteLine(result);
             }
             catch (Exception ex)
             {
                 await this.ShowMessageAsync("오류", $"OpenAPI 조회오류 {ex.Message}");
+                return;
             }
 
             var jsonResult = JObject.Parse(result);
@@ -67,9 +110,10 @@ namespace openApi_min
                 var jsonArray = data as JArray;
 
                 var daegufood = new List<DaeguFood>();
-                if (string.IsNullOrEmpty(Helpers.Common.Index))
+                foreach (var item in jsonArray)
                 {
-                    foreach (var item in jsonArray)
+                    // ComboBox 선택값과 FD_CS 값이 동일한 데이터들만 추가
+                    if (Convert.ToString(item["FD_CS"]) == Helpers.Common.Index)
                     {
                         daegufood.Add(new DaeguFood()
                         {
@@ -84,48 +128,54 @@ namespace openApi_min
                             SBW = Convert.ToString(item["SBW"]),
                             BUS = Convert.ToString(item["BUS"]),
                         });
-
-                    }
-                }
-
-                else
-                {
-                    foreach (var item in jsonArray)
-                    {
-                        if (Convert.ToString(item["FD_CS"]) == Helpers.Common.Index)
-                            daegufood.Add(new DaeguFood()
-                            {
-                                OPENDATA_ID = Convert.ToString(item["OPENDATA_ID"]),
-                                GNG_CS = Convert.ToString(item["GNG_CS"]),
-                                FD_CS = Convert.ToString(item["FD_CS"]),
-                                BZ_NM = Convert.ToString(item["BZ_NM"]),
-                                TLNO = Convert.ToString(item["TLNO"]),
-                                MBZ_HR = Convert.ToString(item["MBZ_HR"]),
-                                SEAT_CNT = Convert.ToString(item["SEAT_CNT"]),
-                                PKPL = Convert.ToString(item["PKPL"]),
-                                SBW = Convert.ToString(item["SBW"]),
-                                BUS = Convert.ToString(item["BUS"]),
-                            });
-
                     }
                 }
                 this.DataContext = daegufood;
-                //StsResult.Content = $"OpenAPI {daegufood.Count} 건 조회완료!";
             }
-
         }
 
-
-        private void MetroWindow_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        private async void ShowRestaurantInfo()
         {
-            //BtnReqRealtime_Click(sender, e);
+            this.DataContext = null;
+
+            try
+            {
+                var CategoryList = new List<DaeguFood>();
+
+                using (SqlConnection conn = new SqlConnection(Helpers.Common.CONNSTRING))
+                {
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand(Models.DaeguFood.SELECT_CATE_QUERY, conn);
+                    cmd.Parameters.AddWithValue("@FD_CS", Helpers.Common.Index);
+                    SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                    while (reader.Read())
+                    {
+                        CategoryList.Add(new DaeguFood
+                        {
+                            OPENDATA_ID = reader["OPENDATA_ID"].ToString(),
+                            GNG_CS = reader["GNG_CS"].ToString(),
+                            FD_CS = reader["FD_CS"].ToString(),
+                            BZ_NM = reader["BZ_NM"].ToString(),
+                            TLNO = reader["TLNO"].ToString(),
+                            MBZ_HR = reader["MBZ_HR"].ToString(),
+                            SEAT_CNT = reader["SEAT_CNT"].ToString(),
+                            PKPL = reader["PKPL"].ToString(),
+                            SBW = reader["SBW"].ToString(),
+                            BUS = reader["BUS"].ToString(),
+                        });
+                    }
+                }
+                GrdResult.ItemsSource = CategoryList;
+
+            }
+            catch (Exception ex)
+            {
+                await this.ShowMessageAsync("오류", $"데이터 목록 불러오기 오류: {ex.Message}");
+            }
         }
 
-
-        private void InitComboDateFromDB()
-        {
-            // DB
-        }
 
         private async Task<List<DaeguFood>> GetDaeguFoodData(string area)
         {
@@ -177,8 +227,13 @@ namespace openApi_min
             return null;
         }
 
+        // 실시간 조회 및 저장
         private async void BtnReqRealtime_Click(object sender, RoutedEventArgs e)
         {
+            isArea = false;
+            TxtAreaName.Text = string.Empty;
+            ComboFoodType.Text = string.Empty;
+
             string[] areas = { "중구", "남구", "북구" };
             List<DaeguFood> allDaeguFood = new List<DaeguFood>();
 
@@ -192,97 +247,10 @@ namespace openApi_min
             }
 
             this.DataContext = allDaeguFood;
-        }
 
-
-        //private async void BtnReqRealtime_Click(object sender, System.Windows.RoutedEventArgs e)
-        //{
-
-        //    string openApiUri = $"https://www.daegufood.go.kr/kor/api/tasty.html?mode=json&addr=%EC%A4%91%EA%B5%AC";
-        //    string result = string.Empty;
-
-        //    //WebRequest, WebResponse 객체
-        //    WebRequest req = null;
-        //    WebResponse res = null;
-        //    StreamReader reader = null;
-        //    try
-        //    {
-        //        req = WebRequest.Create(openApiUri);
-        //        res = await req.GetResponseAsync();
-        //        reader = new StreamReader(res.GetResponseStream());
-        //        result = reader.ReadToEnd();
-
-        //        //await this.ShowMessageAsync("결과", result);
-        //        //Debug.WriteLine(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await this.ShowMessageAsync("오류", $"OpenAPI 조회오류 {ex.Message}");
-        //    }
-
-        //    var jsonResult = JObject.Parse(result);
-        //    var status = Convert.ToString(jsonResult["status"]);
-
-        //    if (status == "DONE")
-        //    {
-        //        var data = jsonResult["data"];
-        //        var jsonArray = data as JArray;
-
-        //        var daegufood = new List<DaeguFood>();
-        //        if (string.IsNullOrEmpty(Helpers.Common.Index))
-        //        {
-        //            foreach (var item in jsonArray)
-        //            {
-        //                daegufood.Add(new DaeguFood()
-        //                {
-        //                    OPENDATA_ID = Convert.ToString(item["OPENDATA_ID"]),
-        //                    GNG_CS = Convert.ToString(item["GNG_CS"]),
-        //                    FD_CS = Convert.ToString(item["FD_CS"]),
-        //                    BZ_NM = Convert.ToString(item["BZ_NM"]),
-        //                    TLNO = Convert.ToString(item["TLNO"]),
-        //                    MBZ_HR = Convert.ToString(item["MBZ_HR"]),
-        //                    SEAT_CNT = Convert.ToString(item["SEAT_CNT"]),
-        //                    PKPL = Convert.ToString(item["PKPL"]),
-        //                    SBW = Convert.ToString(item["SBW"]),
-        //                    BUS = Convert.ToString(item["BUS"]),
-        //                });
-
-        //            }
-        //        }
-
-        //        else
-        //        {
-        //            foreach (var item in jsonArray)
-        //            {
-        //                if (Convert.ToString(item["FD_CS"]) == Helpers.Common.Index)
-        //                    daegufood.Add(new DaeguFood()
-        //                    {
-        //                        OPENDATA_ID = Convert.ToString(item["OPENDATA_ID"]),
-        //                        GNG_CS = Convert.ToString(item["GNG_CS"]),
-        //                        FD_CS = Convert.ToString(item["FD_CS"]),
-        //                        BZ_NM = Convert.ToString(item["BZ_NM"]),
-        //                        TLNO = Convert.ToString(item["TLNO"]),
-        //                        MBZ_HR = Convert.ToString(item["MBZ_HR"]),
-        //                        SEAT_CNT = Convert.ToString(item["SEAT_CNT"]),
-        //                        PKPL = Convert.ToString(item["PKPL"]),
-        //                        SBW = Convert.ToString(item["SBW"]),
-        //                        BUS = Convert.ToString(item["BUS"]),
-        //                    });
-
-        //            }
-        //        }
-        //        this.DataContext = daegufood;
-        //        //StsResult.Content = $"OpenAPI {daegufood.Count} 건 조회완료!";
-        //    }
-        //    // ComboBox에서 선택된 지역 가져오기
-        //    // 지역별 API 요청 URL 생성
-        //}
-
-        private async void BtnSaveData_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            if(GrdResult.Items.Count ==0)
+            if (GrdResult.Items.Count == 0)
             {
-                await this.ShowMessageAsync("저장오류", "실시간 조회후 저장하십시오.");
+                await this.ShowMessageAsync("저장오류", "실시간 조회 후 저장하십시오.");
                 return;
             }
             try
@@ -294,102 +262,10 @@ namespace openApi_min
                     var insRes = 0;
                     foreach (DaeguFood item in GrdResult.Items)
                     {
-                        SqlCommand cmd = new SqlCommand(Models.DaeguFood.INSERT_QUERY, conn);
-                        cmd.Parameters.AddWithValue("@OPENDATA_ID", item.OPENDATA_ID);
-                        cmd.Parameters.AddWithValue("@GNG_CS", item.GNG_CS);
-                        cmd.Parameters.AddWithValue("@FD_CS", item.FD_CS);
-                        cmd.Parameters.AddWithValue("@BZ_NM", item.BZ_NM);
-                        cmd.Parameters.AddWithValue("@TLNO", item.TLNO);
-                        cmd.Parameters.AddWithValue("@MBZ_HR", item.MBZ_HR);
-                        cmd.Parameters.AddWithValue("@SEAT_CNT", item.SEAT_CNT);
-                        cmd.Parameters.AddWithValue("@PKPL", item.PKPL);
-                        cmd.Parameters.AddWithValue("@SBW", item.SBW);
-                        cmd.Parameters.AddWithValue("@BUS", item.BUS);
 
-                        insRes += cmd.ExecuteNonQuery();
-                    }
-
-                    //if (insRes > 0)
-                    //{
-                    //    await this.ShowMessageAsync("저장", "DB저장성공");
-                    //    StsResult.Content = $"DB 저장 {insRes}건 성공!";
-                    //}
-                }
-            }
-            catch (Exception ex)
-            {
-                await this.ShowMessageAsync("저장오류", $"저장오류{ex.Message}");
-            }
-            
-            InitComboDateFromDB();
-        }
-    
-
-        private void ComboFoodType_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            int num = ComboFoodType.SelectedIndex;
-            string index = "";
-
-            switch (num)
-            {
-                case 0:
-                    index = "한식";
-                    break;
-                case 1:
-                    index = "양식";
-                    break;
-                case 2:
-                    index = "일식";
-                    break;
-                case 3:
-                    index = "전통차/커피전문점";
-                    break;
-                case 4:
-                    index = "디저트/베이커리";
-                    break;
-                case 5:
-                    index = "세계요리";
-                    break;
-                case 6:
-                    index = "특별한 술집";
-                    break;
-            }
-            Helpers.Common.Index = index;
-            BtnReqRealtime_Click(sender, e);
-        }
-
-        private async void BtnFavoite_Click(object sender, RoutedEventArgs e)
-        {
-            if (GrdResult.SelectedItems.Count == 0)
-            {
-                await this.ShowMessageAsync("즐겨찾기", "추가할 맛집을 선택하세요(복수선택가능)!!");
-                return;
-            }
-            if (isFavorite == true)  // 즐겨찾기 보기한 뒤 영화를 다시 즐겨찾기하려고 할때 막음.
-            {
-                await this.ShowMessageAsync("즐겨찾기", "이미 즐겨찾기한 맛집입니다");
-                return;
-            }
-
-            var DaeguFood = new List<DaeguFood>();
-            foreach (DaeguFood item in GrdResult.SelectedItems)
-            {
-                DaeguFood.Add(item);
-            }
-            Debug.WriteLine(DaeguFood.Count);
-            try
-            {
-                var insRes = 0;
-
-                using (SqlConnection conn = new SqlConnection(Helpers.Common.CONNSTRING))
-                {
-                    conn.Open();
-
-                    foreach (DaeguFood item in DaeguFood)
-                    {
                         // 저장되기 전에 이미 저장된 데이터인지 확인 후 
                         SqlCommand chkCmd = new SqlCommand(Models.DaeguFood.CHECK_QUERY, conn);
-                        chkCmd.Parameters.AddWithValue("@Id", item.OPENDATA_ID);
+                        chkCmd.Parameters.AddWithValue("@BZ_NM", item.BZ_NM);
                         var cnt = Convert.ToInt32(chkCmd.ExecuteScalar()); // COUNT
 
                         if (cnt == 1) continue; // 이미 데이터가 있으면 패스
@@ -406,73 +282,20 @@ namespace openApi_min
                         cmd.Parameters.AddWithValue("@SBW", item.SBW);
                         cmd.Parameters.AddWithValue("@BUS", item.BUS);
 
-                        insRes += cmd.ExecuteNonQuery(); //데이터 하나마다 INSERT 쿼리 실행 
+                        insRes += cmd.ExecuteNonQuery();
                     }
-                }
 
-                if (insRes == DaeguFood.Count)
-                {
-                    await this.ShowMessageAsync("즐겨찾기", "즐겨찾기 저장성공!");
-                }
-                else
-                {
-                    await this.ShowMessageAsync("즐겨찾기", $"즐겨찾기{DaeguFood.Count} 건중{insRes}건 저장성공!");
-                }
-            }
-            catch (Exception ex)
-            {
-                await this.ShowMessageAsync("오류", $"즐겨찾기 오류{ex.Message}");
-            }
-        }
-
-        private async void BtnViewFavorite_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var favoriteList = new List<DaeguFood>();
-
-                using (SqlConnection conn = new SqlConnection(Helpers.Common.CONNSTRING))
-                {
-                    conn.Open();
-
-                    SqlCommand cmd = new SqlCommand("SELECT * FROM FavoriteDaeguFood", conn);
-                    SqlDataReader reader = await cmd.ExecuteReaderAsync();
-
-                    while (reader.Read())
+                    if (insRes > 0)
                     {
-                        favoriteList.Add(new DaeguFood
-                        {
-                            OPENDATA_ID = reader["OPENDATA_ID"].ToString(),
-                            GNG_CS = reader["GNG_CS"].ToString(),
-                            FD_CS = reader["FD_CS"].ToString(),
-                            BZ_NM = reader["BZ_NM"].ToString(),
-                            TLNO = reader["TLNO"].ToString(),
-                            MBZ_HR = reader["MBZ_HR"].ToString(),
-                            SEAT_CNT = reader["SEAT_CNT"].ToString(),
-                            PKPL = reader["PKPL"].ToString(),
-                            SBW = reader["SBW"].ToString(),
-                            BUS = reader["BUS"].ToString(),
-                        });
+                        await this.ShowMessageAsync("저장", "DB저장성공");
                     }
-                }
-
-                if (favoriteList.Count > 0)
-                {
-                    GrdResult.ItemsSource = favoriteList;
-                    await this.ShowMessageAsync("즐겨찾기", "즐겨찾기 목록을 불러왔습니다.");
-                }
-                else
-                {
-                    await this.ShowMessageAsync("즐겨찾기", "저장된 즐겨찾기가 없습니다.");
                 }
             }
             catch (Exception ex)
             {
-                await this.ShowMessageAsync("오류", $"즐겨찾기 목록 불러오기 오류: {ex.Message}");
+                await this.ShowMessageAsync("저장오류", $"저장오류{ex.Message}");
             }
         }
-
-
 
         private async void GrdResult_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
@@ -487,12 +310,6 @@ namespace openApi_min
                     await this.ShowMessageAsync("대중교통", message);
                 }
             }
-        }
-
-        
-        private void TxtAreaName_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-
         }
     }
 }

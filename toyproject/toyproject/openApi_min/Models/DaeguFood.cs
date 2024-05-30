@@ -13,16 +13,13 @@
         public string PKPL { get; set; }     // 주차장
 
 
-        public string SBW {  get; set; } // 지하철
+        public string SBW { get; set; } // 지하철
 
-        public string BUS {  get; set; } // 버스
+        public string BUS { get; set; } // 버스
 
         public static readonly string CHECK_QUERY = @"SELECT COUNT(*)
                                                         FROM [dbo].[daegufood]
-                                                       WHERE OPENDATA_ID = @OPENDATA_ID";
-                                                       
-
-
+                                                       WHERE BZ_NM = @BZ_NM";
 
         public static readonly string INSERT_QUERY = @"INSERT INTO [dbo].[daegufood]
                                                        ([OPENDATA_ID]
@@ -46,8 +43,8 @@
                                                        ,@PKPL
                                                        ,@SBW
                                                        ,@BUS)";
-        public static readonly string SELECT_QUERY = @"SELECT 
-                                                      ,[OPENDATA_ID]
+
+        public static readonly string SELECT_QUERY = @"SELECT [OPENDATA_ID]
                                                       ,[GNG_CS]
                                                       ,[FD_CS]
                                                       ,[BZ_NM]
@@ -58,5 +55,32 @@
                                                       ,[SBW]
                                                       ,[BUS]
                                                   FROM [dbo].[daegufood]";
+
+        public static readonly string SELECT_CATE_QUERY = @"SELECT [OPENDATA_ID]
+                                                      ,[GNG_CS]
+                                                      ,[FD_CS]
+                                                      ,[BZ_NM]
+                                                      ,[TLNO]
+                                                      ,[MBZ_HR]
+                                                      ,[SEAT_CNT]
+                                                      ,[PKPL]
+                                                      ,[SBW]
+                                                      ,[BUS]
+                                                  FROM [dbo].[daegufood]
+                                                 WHERE FD_CS = @FD_CS";
+
+        public static readonly string SELECT_AREA_QUERY = @"SELECT [OPENDATA_ID]
+                                                  ,[GNG_CS]
+                                                  ,[FD_CS]
+                                                  ,[BZ_NM]
+                                                  ,[TLNO]
+                                                  ,[MBZ_HR]
+                                                  ,[SEAT_CNT]
+                                                  ,[PKPL]
+                                                  ,[SBW]
+                                                  ,[BUS]
+                                              FROM [dbo].[daegufood]
+                                             WHERE GNG_CS LIKE '%' + @GNG_CS + '%'
+                                               AND FD_CS = @FD_CS";
     }
 }
